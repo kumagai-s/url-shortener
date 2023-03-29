@@ -13,6 +13,10 @@ resource "aws_s3_bucket" "this" {
       }
     }
   }
+
+  tags = {
+    Name = "url-shortener"
+  }
 }
 
 resource "aws_s3_bucket_policy" "this" {

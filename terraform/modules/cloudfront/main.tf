@@ -44,6 +44,10 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   viewer_certificate {
     cloudfront_default_certificate = true
   }
+
+  tags = {
+    Name = "url-shortener"
+  }
 }
 
 resource "aws_cloudfront_origin_access_control" "this" {
