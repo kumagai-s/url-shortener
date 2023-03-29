@@ -12,9 +12,9 @@ provider "aws" {
 }
 
 module "s3" {
-  source                 = "./modules/s3"
-  bucket_name            = var.s3_bucket_name
-  cloudfront_oai_iam_arn = module.cloudfront.cloudfront_oai_iam_arn
+  source                      = "./modules/s3"
+  bucket_name                 = var.s3_bucket_name
+  cloudfront_distribution_arn = module.cloudfront.distribution_arn
 }
 
 module "lambda" {

@@ -20,20 +20,24 @@ resource "aws_s3_bucket" "this" {
 }
 
 resource "aws_s3_bucket_policy" "this" {
-  statement {
-    principals {
-      type        = "Service"
-      identifiers = ["cloudfront.amazonaws.com"]
-    }
+  bucket = aws_s3_bucket.this.id
 
-    actions = ["s3:GetObject"]
-
-    resources = ["${aws_s3_bucket.bucket.arn}/*"]
-
-    condition {
-      test     = "StringEquals"
-      variable = "aws:SourceArn"
-      values   = [aws_cloudfront_distribution.main.arn]
-    }
-  }
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "s3:GetObject"
+        Effect = "Allow"
+        Resource = "${aws_s3_bucket.bucket.arn}/*"
+        Principal = {
+          Service = "cloudfront.amazonaws.com"
+        }
+        Condition = {
+          StringEquals = {
+            "aws:SourceArn" = var.cloudfront_distribution_arn
+          }
+        }
+      }
+    ]
+  })
 }
