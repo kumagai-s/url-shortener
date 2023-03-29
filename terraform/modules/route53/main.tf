@@ -8,8 +8,4 @@ resource "aws_route53_record" "this" {
     zone_id                = var.cloudfront_hosted_zone_id
     evaluate_target_health = false
   }
-
-  tags = {
-    Name = "url-shortener"
-  }
 }

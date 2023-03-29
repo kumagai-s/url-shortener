@@ -14,6 +14,6 @@ output "api_gateway_url" {
 }
 
 output "cloudfront_domain_name" {
-  value       = module.cloudfront.cloudfront_domain_name
+  value       = module.cloudfront.domain_name
   description = "The domain name of the CloudFront distribution for the URL shortening service."
 }

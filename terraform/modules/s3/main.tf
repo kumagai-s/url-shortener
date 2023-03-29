@@ -1,22 +1,28 @@
 resource "aws_s3_bucket" "this" {
   bucket = var.bucket_name
-  acl    = "private"
-
-  lifecycle_configuration {
-    rule {
-      id     = "expired_objects"
-      status = "Enabled"
-
-      action {
-        type = "Delete"
-        days = 90
-      }
-    }
-  }
 
   tags = {
     Name = "url-shortener"
   }
+}
+
+resource "aws_s3_bucket_acl" "this" {
+  bucket = aws_s3_bucket.this.id
+
+  acl = "private"
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "this" {
+  bucket = aws_s3_bucket.this.id
+
+  rule {
+      id     = "expired_objects"
+      status = "Enabled"
+
+      expiration {
+        days = 90
+      }
+    }
 }
 
 resource "aws_s3_bucket_policy" "this" {
@@ -28,7 +34,7 @@ resource "aws_s3_bucket_policy" "this" {
       {
         Action = "s3:GetObject"
         Effect = "Allow"
-        Resource = "${aws_s3_bucket.bucket.arn}/*"
+        Resource = "${aws_s3_bucket.this.arn}/*"
         Principal = {
           Service = "cloudfront.amazonaws.com"
         }

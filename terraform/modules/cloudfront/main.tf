@@ -52,6 +52,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
 resource "aws_cloudfront_origin_access_control" "this" {
   name                              = "url-shortener-prod-oac"
+  description                       = "for url shortener"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"

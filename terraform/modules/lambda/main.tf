@@ -3,7 +3,7 @@ resource "aws_lambda_function" "shorten" {
   handler       = "main"
   runtime       = "go1.x"
 
-  role      = aws_iam_role.lambda_exec.arn
+  role      = aws_iam_role.this.arn
   s3_bucket = var.s3_bucket_name
 
   tags = {
