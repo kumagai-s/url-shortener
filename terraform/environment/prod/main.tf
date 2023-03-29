@@ -35,6 +35,8 @@ module "api_gateway" {
 module "cloudfront" {
   source                         = "./modules/cloudfront"
   s3_bucket_regional_domain_name = module.s3.bucket_regional_domain_name
+  s3_bucket_id                   = module.s3.bucket_id
+  alternate_domain_name          = var.domain_name
 }
 
 module "route53" {

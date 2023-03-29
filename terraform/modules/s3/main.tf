@@ -16,19 +16,20 @@ resource "aws_s3_bucket" "this" {
 }
 
 resource "aws_s3_bucket_policy" "this" {
-  bucket = aws_s3_bucket.this.id
+  statement {
+    principals {
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
+    }
 
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "s3:GetObject"
-        Effect = "Allow"
-        Resource = "${aws_s3_bucket.bucket.arn}/*"
-        Principal = {
-          AWS = var.cloudfront_oai_iam_arn
-        }
-      }
-    ]
-  })
+    actions = ["s3:GetObject"]
+
+    resources = ["${aws_s3_bucket.bucket.arn}/*"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceArn"
+      values   = [aws_cloudfront_distribution.main.arn]
+    }
+  }
 }
