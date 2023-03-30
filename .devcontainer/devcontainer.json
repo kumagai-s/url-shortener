@@ -1,0 +1,17 @@
+{
+	"name": "url-shortener",
+	"dockerComposeFile": [
+		"../docker-compose.yml"
+	],
+	"service": "go",
+	"workspaceFolder": "/workspace",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"golang.go",
+				"mhutchie.git-graph",
+				"eamodio.gitlens"
+			]
+		}
+	}
+}

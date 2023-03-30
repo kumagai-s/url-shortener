@@ -1,6 +1,21 @@
 version: "3"
 
+volumes:
+  go_modules:
+
 services:
+  go:
+    container_name: go
+    build:
+      context: .
+      dockerfile: ./go/Dockerfile
+    volumes:
+      - .:/workspace:cached
+      - go_modules:/go/pkg
+    tty: true
+    environment:
+      - GO111MODULE=on
+
   terraform:
     container_name: terraform
     image: hashicorp/terraform:1.4.2
