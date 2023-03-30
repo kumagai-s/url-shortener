@@ -41,7 +41,7 @@ variable "route53_zone_id" {
 
 variable "domain_name" {
   type        = string
-  default     = "shortener.example.com"
+  default     = "short.servithink.co.jp"
   description = "The domain name for the URL shortening service."
 }
 

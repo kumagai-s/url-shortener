@@ -1,10 +1,16 @@
-resource "aws_lambda_function" "shorten" {
+data "archive_file" "this" {
+  type        = "zip"
+  source_dir  = "../../tmp"
+  output_path = "../../tmp/function.zip"
+}
+
+resource "aws_lambda_function" "this" {
+  filename      = data.archive_file.this.output_path
   function_name = var.function_name
   handler       = "main"
   runtime       = "go1.x"
 
   role      = aws_iam_role.this.arn
-  s3_bucket = var.s3_bucket_name
 
   tags = {
     Name = "url-shortener"

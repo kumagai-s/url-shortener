@@ -4,7 +4,7 @@ output "s3_bucket_name" {
 }
 
 output "lambda_function_arn" {
-  value       = module.lambda.lambda_arn
+  value       = module.lambda.lambda_invoke_arn
   description = "The ARN of the Lambda function that processes URL shortening."
 }
 

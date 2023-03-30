@@ -29,14 +29,15 @@ module "lambda" {
 module "api_gateway" {
   source            = "../../modules/api_gateway"
   name              = var.api_gateway_name
-  lambda_invoke_arn = module.lambda.lambda_arn
+  allowed_ip        = "183.77.231.76"
+  lambda_invoke_arn = module.lambda.lambda_invoke_arn
 }
 
 module "cloudfront" {
   source                         = "../../modules/cloudfront"
   s3_bucket_regional_domain_name = module.s3.bucket_regional_domain_name
   s3_bucket_id                   = module.s3.bucket_id
-  alternate_domain_name          = var.domain_name
+  # alternate_domain_name          = var.domain_name
 }
 
 module "route53" {

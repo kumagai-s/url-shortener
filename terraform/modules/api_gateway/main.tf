@@ -1,6 +1,26 @@
+data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
+
 resource "aws_api_gateway_rest_api" "this" {
   name        = var.name
   description = "for url shortener"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action   = "execute-api:Invoke"
+        Effect   = "Allow"
+        Resource = "arn:aws:execute-api:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:*/*/*/*"
+        Condition = {
+          IpAddress = {
+            "aws:SourceIp" = var.allowed_ip
+          }
+        }
+        Principal = "*"
+      }
+    ]
+  })
 
   tags = {
     Name = "url-shortener"
