@@ -1,49 +1,82 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"crypto/rand"
+	"encoding/json"
+	"fmt"
 	"log"
+	"os"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
-var (
-	s3Client *s3.Client
-)
+type RequestBody struct {
+	Url string `json:"url"`
+}
 
-func init() {
-	sdkConfig, err := config.LoadDefaultConfig(context.TODO())
+func generateRandomKey() (string, error) {
+	keySize := 8
+	bytes := make([]byte, keySize)
+	_, err := rand.Read(bytes)
 	if err != nil {
-		log.Println()
+		return "", err
 	}
-	s3Client = s3.NewFromConfig(sdkConfig)
+	return fmt.Sprintf("%x", bytes), nil
 }
 
-type LambdaRequest struct {
-	URL string `json:"url"`
-}
+func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	var requestBody RequestBody
+	err := json.Unmarshal([]byte(request.Body), &requestBody)
+	if err != nil {
+		log.Printf("Error unmarshalling request body: %v", err)
+		return events.APIGatewayProxyResponse{StatusCode: 400}, err
+	}
 
-func lambdaHandler(r events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	cfg, err := config.LoadDefaultConfig(ctx, config.WithRegion("us-west-2"))
+	if err != nil {
+		log.Printf("Error loading config: %v", err)
+		return events.APIGatewayProxyResponse{StatusCode: 500}, err
+	}
+
+	svc := s3.NewFromConfig(cfg)
+
+	bucket := os.Getenv("BUCKET_NAME")
+	key, err := generateRandomKey()
+	if err != nil {
+		log.Printf("Error generating random key: %v", err)
+		return events.APIGatewayProxyResponse{StatusCode: 500}, err
+	}
+
+	redirectURL := requestBody.Url
+
+	_, err = svc.PutObject(ctx, &s3.PutObjectInput{
+		Bucket: aws.String(bucket),
+		Key:    aws.String(key),
+		Body:   bytes.NewReader([]byte("")),
+		Metadata: map[string]string{
+			"x-amz-website-redirect-location": redirectURL,
+		},
+	})
+
+	if err != nil {
+		log.Printf("Error uploading object to S3: %v", err)
+		return events.APIGatewayProxyResponse{StatusCode: 500}, err
+	}
+
+	shortenedURL := fmt.Sprintf("%s/%s", os.Getenv("APP_URL"), key)
+
 	return events.APIGatewayProxyResponse{
-		Body:       "Hello world !!",
 		StatusCode: 200,
+		Body:       shortenedURL,
 	}, nil
-	// body := r.Body
-	// log.Println("リクエストボディ", body)
-
-	// var lr LambdaRequest
-	// if err := json.Unmarshal([]byte(body), &lr); err != nil {
-	// 	log.Println()
-	// }
-
-	// s3Client.PutObject(context.TODO(), &s3.PutObjectInput{
-	// 	Bucket: aws.String(os.Getenv("S3_BUCKET")),
-	// })
 }
 
 func main() {
-	lambda.Start(lambdaHandler)
+	lambda.Start(handler)
 }
