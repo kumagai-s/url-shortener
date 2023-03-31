@@ -46,3 +46,14 @@ variable "domain_name" {
   description = "The domain name for the URL shortening service."
 }
 
+variable "lambda_deploy_role_name" {
+  type        = string
+  default     = "url-shortener-prod-lambda-deploy-role"
+  description = "The name of the IAM role for the Lambda function deploy."
+}
+
+variable "lambda_deploy_role_policy_name" {
+  type        = string
+  default     = "url-shortener-prod-lambda-deploy-role-policy"
+  description = "The name of the IAM role policy for the Lambda function deploy."
+}

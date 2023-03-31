@@ -17,3 +17,8 @@ output "cloudfront_domain_name" {
   value       = module.cloudfront.domain_name
   description = "The domain name of the CloudFront distribution for the URL shortening service."
 }
+
+output "lambda_deploy_role_arn" {
+  value       = module.lambda-deploy-role.lambda_deploy_role_arn
+  description = "The ARN of the IAM deploy role."
+}

@@ -59,3 +59,10 @@ module "route53" {
   cloudfront_domain_name    = module.cloudfront.domain_name
   cloudfront_hosted_zone_id = module.cloudfront.hosted_zone_id
 }
+
+module lambda-deploy-role {
+  source                         = "../../modules/lambda-deploy-role"
+  lambda_deploy_role_name        = var.lambda_deploy_role_name
+  lambda_deploy_role_policy_name = var.lambda_deploy_role_policy_name
+  lambda_invoke_arn              = module.lambda.lambda_invoke_arn
+}
