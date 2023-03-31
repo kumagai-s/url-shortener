@@ -38,7 +38,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		return events.APIGatewayProxyResponse{StatusCode: 400}, err
 	}
 
-	cfg, err := config.LoadDefaultConfig(ctx, config.WithRegion("us-west-2"))
+	cfg, err := config.LoadDefaultConfig(ctx, config.WithRegion("ap-northeast-1"))
 	if err != nil {
 		log.Printf("Error loading config: %v", err)
 		return events.APIGatewayProxyResponse{StatusCode: 500}, err
