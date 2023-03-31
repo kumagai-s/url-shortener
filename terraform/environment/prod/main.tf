@@ -9,6 +9,11 @@ terraform {
 
 provider "aws" {
   region = var.aws_region
+  default_tags {
+    tags = {
+      Name = "url-shortener"
+    }
+  }
 }
 
 module "s3" {
@@ -33,11 +38,18 @@ module "api_gateway" {
   lambda_invoke_arn = module.lambda.lambda_invoke_arn
 }
 
+module "acm" {
+  source          = "../../modules/acm"
+  domain_name     = var.domain_name
+  route53_zone_id = var.route53_zone_id
+}
+
 module "cloudfront" {
   source                         = "../../modules/cloudfront"
   s3_bucket_regional_domain_name = module.s3.bucket_regional_domain_name
   s3_bucket_id                   = module.s3.bucket_id
-  # alternate_domain_name          = var.domain_name
+  domain_name                    = var.domain_name
+  acm_certificate_arn            = module.acm.certificate_arn
 }
 
 module "route53" {

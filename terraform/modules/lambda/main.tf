@@ -11,10 +11,6 @@ resource "aws_lambda_function" "this" {
   runtime       = "go1.x"
 
   role      = aws_iam_role.this.arn
-
-  tags = {
-    Name = "url-shortener"
-  }
 }
 
 resource "aws_iam_role" "this" {

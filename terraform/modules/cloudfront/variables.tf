@@ -8,7 +8,12 @@ variable "s3_bucket_id" {
   description = "The id of the S3 bucket."
 }
 
-# variable "alternate_domain_name" {
-#   type        = string
-#   description = "The alternate domain name for the CloudFront distribution."
-# }
+variable "domain_name" {
+  type        = string
+  description = "The alternate domain name for the CloudFront distribution."
+}
+
+variable "acm_certificate_arn" {
+  description = "The ARN of the ACM certificate"
+  type        = string
+}

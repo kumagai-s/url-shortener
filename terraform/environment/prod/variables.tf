@@ -36,6 +36,7 @@ variable "api_gateway_name" {
 
 variable "route53_zone_id" {
   type        = string
+  default     = "Z1005005LKRCONPBGC2M"
   description = "The hosted zone ID for Route53."
 }
 

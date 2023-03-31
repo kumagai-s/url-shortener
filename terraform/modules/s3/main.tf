@@ -1,9 +1,5 @@
 resource "aws_s3_bucket" "this" {
   bucket = var.bucket_name
-
-  tags = {
-    Name = "url-shortener"
-  }
 }
 
 resource "aws_s3_bucket_acl" "this" {

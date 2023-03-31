@@ -21,10 +21,6 @@ resource "aws_api_gateway_rest_api" "this" {
       }
     ]
   })
-
-  tags = {
-    Name = "url-shortener"
-  }
 }
 
 resource "aws_api_gateway_resource" "shorten" {
