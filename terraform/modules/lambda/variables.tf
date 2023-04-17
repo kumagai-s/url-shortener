@@ -22,3 +22,13 @@ variable "s3_bucket_arn" {
   type        = string
   description = "The ARN of the S3 bucket used by the Lambda function."
 }
+
+variable "api_gateway_execution_arn" {
+  type        = string
+  description = "The ARN of the API Gateway execution role."
+}
+
+variable "api_gateway_shorten_resource_path" {
+  type        = string
+  description = "The path of the API Gateway resource."
+}

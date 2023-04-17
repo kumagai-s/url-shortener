@@ -39,7 +39,7 @@ resource "aws_iam_role_policy" "this" {
           "lambda:UpdateFunctionCode",
         ]
         Effect   = "Allow"
-        Resource = "${var.lambda_invoke_arn}/*"
+        Resource = "${var.lambda_arn}"
       }
     ]
   })

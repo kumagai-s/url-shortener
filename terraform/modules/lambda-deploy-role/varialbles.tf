@@ -8,7 +8,7 @@ variable "lambda_deploy_role_policy_name" {
   description = "The name of the IAM role policy for the Lambda function deploy."
 }
 
-variable "lambda_invoke_arn" {
+variable "lambda_arn" {
   type        = string
   description = "The ARN of the Lambda function to be invoked."
 }

@@ -29,6 +29,8 @@ module "lambda" {
   iam_role_policy_name = var.iam_role_policy_name
   s3_bucket_name       = module.s3.bucket_name
   s3_bucket_arn        = module.s3.bucket_arn
+  api_gateway_execution_arn         = module.api_gateway.api_gateway_execution_arn
+  api_gateway_shorten_resource_path = module.api_gateway.api_gateway_shorten_resource_path
 }
 
 module "api_gateway" {
@@ -64,5 +66,5 @@ module lambda-deploy-role {
   source                         = "../../modules/lambda-deploy-role"
   lambda_deploy_role_name        = var.lambda_deploy_role_name
   lambda_deploy_role_policy_name = var.lambda_deploy_role_policy_name
-  lambda_invoke_arn              = module.lambda.lambda_invoke_arn
+  lambda_arn                     = module.lambda.lambda_arn
 }
