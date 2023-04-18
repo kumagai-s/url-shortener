@@ -4,10 +4,13 @@ import (
 	"bytes"
 	"context"
 	"crypto/rand"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"log"
+	"net/http"
 	"os"
+	"strings"
+	"text/template"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -16,67 +19,106 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
-type RequestBody struct {
-	Url string `json:"url"`
+const redirectHTMLTemplate = `
+<html>
+<head>
+  <meta http-equiv="refresh" content="0; url={{.TargetURL}}">
+</head>
+<body>
+</body>
+</html>
+`
+
+func createRedirectHTML(targetURL string) (string, error) {
+	tmpl, err := template.New("redirect").Parse(redirectHTMLTemplate)
+	if err != nil {
+		return "", err
+	}
+
+	data := struct {
+		TargetURL string
+	}{
+		TargetURL: targetURL,
+	}
+
+	var buf bytes.Buffer
+	err = tmpl.Execute(&buf, data)
+	if err != nil {
+		return "", err
+	}
+
+	return buf.String(), nil
 }
 
-func generateRandomKey() (string, error) {
-	keySize := 8
-	bytes := make([]byte, keySize)
+type RequestBody struct {
+	URL string `json:"url"`
+}
+
+func generateRandomString(length int) (string, error) {
+	bytes := make([]byte, length)
 	_, err := rand.Read(bytes)
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%x", bytes), nil
+	return base64.URLEncoding.EncodeToString(bytes)[:length], nil
 }
 
-func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+func handleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	// Parse the request body
 	var requestBody RequestBody
 	err := json.Unmarshal([]byte(request.Body), &requestBody)
 	if err != nil {
-		log.Printf("Error unmarshalling request body: %v", err)
-		return events.APIGatewayProxyResponse{StatusCode: 400}, err
+		return events.APIGatewayProxyResponse{StatusCode: http.StatusBadRequest}, err
 	}
 
-	cfg, err := config.LoadDefaultConfig(ctx, config.WithRegion("ap-northeast-1"))
+	// Generate a random string for the object key
+	key, err := generateRandomString(8)
 	if err != nil {
-		log.Printf("Error loading config: %v", err)
-		return events.APIGatewayProxyResponse{StatusCode: 500}, err
+		return events.APIGatewayProxyResponse{StatusCode: http.StatusInternalServerError}, err
 	}
 
-	svc := s3.NewFromConfig(cfg)
-
-	bucket := os.Getenv("BUCKET_NAME")
-	key, err := generateRandomKey()
+	// Create the redirect HTML content
+	redirectHTML, err := createRedirectHTML(requestBody.URL)
 	if err != nil {
-		log.Printf("Error generating random key: %v", err)
-		return events.APIGatewayProxyResponse{StatusCode: 500}, err
+		return events.APIGatewayProxyResponse{StatusCode: http.StatusInternalServerError}, err
 	}
 
-	redirectURL := requestBody.Url
+	// Configure AWS SDK
+	cfg, err := config.LoadDefaultConfig(ctx)
+	if err != nil {
+		return events.APIGatewayProxyResponse{StatusCode: http.StatusInternalServerError}, err
+	}
 
-	_, err = svc.PutObject(ctx, &s3.PutObjectInput{
-		Bucket: aws.String(bucket),
-		Key:    aws.String(key),
-		Body:   bytes.NewReader([]byte("")),
-		Metadata: map[string]string{
-			"x-amz-website-redirect-location": redirectURL,
-		},
+	// Create an S3 client
+	client := s3.NewFromConfig(cfg)
+
+	// Upload the redirect HTML to S3
+	_, err = client.PutObject(ctx, &s3.PutObjectInput{
+		Bucket:      aws.String(os.Getenv("BUCKET_NAME")),
+		Key:         aws.String(key),
+		Body:        strings.NewReader(redirectHTML),
+		ContentType: aws.String("text/html"),
 	})
-
 	if err != nil {
-		log.Printf("Error uploading object to S3: %v", err)
-		return events.APIGatewayProxyResponse{StatusCode: 500}, err
+		return events.APIGatewayProxyResponse{StatusCode: http.StatusInternalServerError}, err
 	}
 
-	shortenedURL := fmt.Sprintf("%s/%s", os.Getenv("APP_URL"), key)
+	// Return the shortened URL
+	response := map[string]string{
+		"shortened_url": fmt.Sprintf("%s/%s", os.Getenv("APP_URL"), key),
+	}
+	responseJSON, err := json.Marshal(response)
+	if err != nil {
+		return events.APIGatewayProxyResponse{StatusCode: http.StatusInternalServerError}, err
+	}
 
 	return events.APIGatewayProxyResponse{
-		StatusCode: 200,
-		Body:       shortenedURL,
+		StatusCode: http.StatusOK,
+		Headers:    map[string]string{"Content-Type": "application/json"},
+		Body:       string(responseJSON),
 	}, nil
 }
 
 func main() {
-	lambda.Start(handler)
+	lambda.Start(handleRequest)
 }
