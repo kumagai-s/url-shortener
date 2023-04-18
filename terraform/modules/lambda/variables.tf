@@ -12,6 +12,10 @@ variable "iam_role_policy_name" {
   type        = string
   description = "The name of the IAM role policy for the Lambda function."
 }
+variable "domain_name" {
+  type        = string
+  description = "The domain name of the application."
+}
 
 variable "s3_bucket_name" {
   type        = string

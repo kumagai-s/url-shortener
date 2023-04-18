@@ -24,6 +24,7 @@ module "s3" {
 
 module "lambda" {
   source               = "../../modules/lambda"
+  domain_name          = var.domain_name
   function_name        = var.lambda_function_name
   iam_role_name        = var.iam_role_name
   iam_role_policy_name = var.iam_role_policy_name

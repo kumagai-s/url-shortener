@@ -10,6 +10,13 @@ resource "aws_lambda_function" "this" {
   handler       = "main"
   runtime       = "go1.x"
 
+  environment {
+    variables = {
+      "APP_URL"     = "https://${var.domain_name}"
+      "BUCKET_NAME" = var.s3_bucket_name
+    }
+  }
+
   role = aws_iam_role.this.arn
 }
 
