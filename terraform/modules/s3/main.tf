@@ -12,13 +12,13 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
   bucket = aws_s3_bucket.this.id
 
   rule {
-      id     = "expired_objects"
-      status = "Enabled"
+    id     = "expired_objects"
+    status = "Enabled"
 
-      expiration {
-        days = 90
-      }
+    expiration {
+      days = 90
     }
+  }
 }
 
 resource "aws_s3_bucket_policy" "this" {
@@ -28,8 +28,8 @@ resource "aws_s3_bucket_policy" "this" {
     Version = "2012-10-17"
     Statement = [
       {
-        Action = "s3:GetObject"
-        Effect = "Allow"
+        Action   = "s3:GetObject"
+        Effect   = "Allow"
         Resource = "${aws_s3_bucket.this.arn}/*"
         Principal = {
           Service = "cloudfront.amazonaws.com"

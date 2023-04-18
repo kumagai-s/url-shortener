@@ -10,7 +10,7 @@ resource "aws_lambda_function" "this" {
   handler       = "main"
   runtime       = "go1.x"
 
-  role      = aws_iam_role.this.arn
+  role = aws_iam_role.this.arn
 }
 
 resource "aws_lambda_permission" "this" {
