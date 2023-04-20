@@ -23,22 +23,24 @@ module "s3" {
 }
 
 module "lambda" {
-  source               = "../../modules/lambda"
-  domain_name          = var.domain_name
-  function_name        = var.lambda_function_name
-  iam_role_name        = var.iam_role_name
-  iam_role_policy_name = var.iam_role_policy_name
-  s3_bucket_name       = module.s3.bucket_name
-  s3_bucket_arn        = module.s3.bucket_arn
+  source                            = "../../modules/lambda"
+  domain_name                       = var.domain_name
+  function_name                     = var.lambda_function_name
+  iam_role_name                     = var.iam_role_name
+  iam_role_policy_name              = var.iam_role_policy_name
+  s3_bucket_name                    = module.s3.bucket_name
+  s3_bucket_arn                     = module.s3.bucket_arn
   api_gateway_execution_arn         = module.api_gateway.api_gateway_execution_arn
   api_gateway_shorten_resource_path = module.api_gateway.api_gateway_shorten_resource_path
 }
 
 module "api_gateway" {
-  source            = "../../modules/api_gateway"
-  name              = var.api_gateway_name
-  allowed_ip        = "183.77.231.76"
-  lambda_invoke_arn = module.lambda.lambda_invoke_arn
+  source                                     = "../../modules/api_gateway"
+  api_gateway_authorization_role_name        = var.api_gateway_authorization_role_name
+  api_gateway_authorization_role_policy_name = var.api_gateway_authorization_role_policy_name
+  name                                       = var.api_gateway_name
+  allowed_ip                                 = "183.77.231.76"
+  lambda_invoke_arn                          = module.lambda.lambda_invoke_arn
 }
 
 module "acm" {
@@ -63,7 +65,7 @@ module "route53" {
   cloudfront_hosted_zone_id = module.cloudfront.hosted_zone_id
 }
 
-module lambda-deploy-role {
+module "lambda-deploy-role" {
   source                         = "../../modules/lambda-deploy-role"
   lambda_deploy_role_name        = var.lambda_deploy_role_name
   lambda_deploy_role_policy_name = var.lambda_deploy_role_policy_name

@@ -26,3 +26,9 @@ services:
     working_dir: "/workspace"
     entrypoint: ash
     tty: true
+
+  aws-cli:
+    container_name: aws-cli
+    image: amazon/aws-cli:2.11.13
+    entrypoint: bash
+    tty: true

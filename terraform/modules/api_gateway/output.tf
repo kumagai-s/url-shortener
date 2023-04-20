@@ -1,3 +1,8 @@
+output "api_gateway_authorization_role_arn" {
+  value       = aws_iam_role.this.arn
+  description = "The ARN of the IAM role for the API Gateway authorization."
+}
+
 output "api_gateway_url" {
   value       = aws_api_gateway_deployment.this.invoke_url
   description = "The URL of the API Gateway."

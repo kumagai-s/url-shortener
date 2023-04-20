@@ -28,6 +28,18 @@ variable "s3_bucket_name" {
   description = "The name of the S3 bucket used for storing shortened URLs."
 }
 
+variable "api_gateway_authorization_role_name" {
+  type        = string
+  default     = "url-shortener-prod-api-authorization-role"
+  description = "The name of the IAM user for the API Gateway authorization."
+}
+
+variable "api_gateway_authorization_role_policy_name" {
+  type        = string
+  default     = "url-shortener-prod-api-authorization-role-policy"
+  description = "The name of the IAM policy for the API Gateway authorization."
+}
+
 variable "api_gateway_name" {
   type        = string
   default     = "url-shortener-prod-api"
