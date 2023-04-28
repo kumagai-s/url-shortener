@@ -35,12 +35,11 @@ module "lambda" {
 }
 
 module "api_gateway" {
-  source                                     = "../../modules/api_gateway"
-  api_gateway_authorization_role_name        = var.api_gateway_authorization_role_name
-  api_gateway_authorization_role_policy_name = var.api_gateway_authorization_role_policy_name
-  name                                       = var.api_gateway_name
-  allowed_ip                                 = "183.77.231.76"
-  lambda_invoke_arn                          = module.lambda.lambda_invoke_arn
+  source            = "../../modules/api_gateway"
+  name              = var.api_gateway_name
+  lambda_invoke_arn = module.lambda.lambda_invoke_arn
+  api_key_name      = var.api_gateway_api_key_name
+  usage_plan_name   = var.api_gateway_usage_plan_name
 }
 
 module "acm" {

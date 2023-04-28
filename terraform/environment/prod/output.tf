@@ -13,11 +13,6 @@ output "api_gateway_url" {
   description = "The base URL of the API Gateway for the URL shortening service."
 }
 
-output "api_gateway_authorization_role_arn" {
-  value       = module.api_gateway.api_gateway_authorization_role_arn
-  description = "The ARN of the IAM role for the API Gateway authorization."
-}
-
 output "lambda_deploy_role_arn" {
   value       = module.lambda-deploy-role.lambda_deploy_role_arn
   description = "The ARN of the IAM deploy role."

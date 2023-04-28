@@ -28,22 +28,22 @@ variable "s3_bucket_name" {
   description = "The name of the S3 bucket used for storing shortened URLs."
 }
 
-variable "api_gateway_authorization_role_name" {
-  type        = string
-  default     = "url-shortener-prod-api-authorization-role"
-  description = "The name of the IAM user for the API Gateway authorization."
-}
-
-variable "api_gateway_authorization_role_policy_name" {
-  type        = string
-  default     = "url-shortener-prod-api-authorization-role-policy"
-  description = "The name of the IAM policy for the API Gateway authorization."
-}
-
 variable "api_gateway_name" {
   type        = string
   default     = "url-shortener-prod-api"
   description = "The name of the API Gateway used for naming resources."
+}
+
+variable "api_gateway_api_key_name" {
+  type        = string
+  default     = "url-shortener-prod-api-key"
+  description = "The name of the API Gateway used for API key."
+}
+
+variable "api_gateway_usage_plan_name" {
+  type        = string
+  default     = "url-shortener-prod-api-usage-plan"
+  description = "The name of the API Gateway used for usage plan."
 }
 
 variable "route53_zone_id" {

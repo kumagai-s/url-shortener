@@ -1,43 +1,3 @@
-# API Gateway 認可ロール作成
-data "aws_region" "current" {}
-data "aws_caller_identity" "current" {}
-
-resource "aws_iam_role_policy" "this" {
-  name = var.api_gateway_authorization_role_policy_name
-  role = aws_iam_role.this.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = [
-          "execute-api:Invoke"
-        ]
-        Effect   = "Allow"
-        Resource = "arn:aws:execute-api:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:${aws_api_gateway_rest_api.this.id}/*"
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role" "this" {
-  name = var.api_gateway_authorization_role_name
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "apigateway.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
-
-# API Gateway 作成
 resource "aws_api_gateway_rest_api" "this" {
   name        = var.name
   description = "for url shortener"
@@ -50,10 +10,11 @@ resource "aws_api_gateway_resource" "shorten" {
 }
 
 resource "aws_api_gateway_method" "shorten_post" {
-  rest_api_id   = aws_api_gateway_rest_api.this.id
-  resource_id   = aws_api_gateway_resource.shorten.id
-  http_method   = "POST"
-  authorization = "AWS_IAM"
+  rest_api_id      = aws_api_gateway_rest_api.this.id
+  resource_id      = aws_api_gateway_resource.shorten.id
+  http_method      = "POST"
+  authorization    = "NONE"
+  api_key_required = true
 }
 
 resource "aws_api_gateway_integration" "shorten_lambda" {
@@ -68,5 +29,29 @@ resource "aws_api_gateway_integration" "shorten_lambda" {
 resource "aws_api_gateway_deployment" "this" {
   rest_api_id = aws_api_gateway_rest_api.this.id
   stage_name  = "prod"
-  depends_on  = [aws_api_gateway_integration.shorten_lambda]
+  depends_on  = [
+    aws_api_gateway_method.shorten_post,
+    aws_api_gateway_integration.shorten_lambda
+  ]
+}
+
+resource "aws_api_gateway_api_key" "this" {
+  name = var.api_key_name
+}
+
+resource "aws_api_gateway_usage_plan" "this" {
+  name        = var.usage_plan_name
+  description = "Usage plan for url shortener"
+  depends_on  = [aws_api_gateway_deployment.this]
+
+  api_stages {
+    api_id = aws_api_gateway_rest_api.this.id
+    stage  = aws_api_gateway_deployment.this.stage_name
+  }
+}
+
+resource "aws_api_gateway_usage_plan_key" "usage_plan_key" {
+  key_id        = aws_api_gateway_api_key.this.id
+  key_type      = "API_KEY"
+  usage_plan_id = aws_api_gateway_usage_plan.this.id
 }

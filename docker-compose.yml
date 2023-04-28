@@ -23,7 +23,7 @@ services:
       - ./terraform:/workspace
     env_file:
       - ./terraform/.env
-    working_dir: "/workspace"
+    working_dir: "/workspace/environment/prod"
     entrypoint: ash
     tty: true
 
